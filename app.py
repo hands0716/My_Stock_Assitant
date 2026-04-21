@@ -11,7 +11,6 @@ def get_market_data():
     start_date = (pd.Timestamp.now() - pd.Timedelta(days=30)).strftime("%Y-%m-%d")
     
     # 1. 국내 주식 (삼성전자, 한화에어로스페이스)
-    # FinanceDataReader는 지분율을 직접 가져오기 어려우므로 주가 모멘텀 중심으로 분석
     samsung = fdr.DataReader('005930', start_date, end_date)['Close']
     hanwha = fdr.DataReader('012450', start_date, end_date)['Close']
     
@@ -20,8 +19,8 @@ def get_market_data():
         "방산_가격": hanwha
     })
 
-    # 2. 해외 자산 (원유, 금)
-    df_global = yf.download(["CL=F", "GC=F"], start=start_date, end=end_date)['Adj Close']
+    # 2. 해외 자산 (원유, 금) - 'Close' 컬럼 사용으로 수정
+    df_global = yf.download(["CL=F", "GC=F"], start=start_date, end=end_date)['Close']
     df_global.columns = ['금', '원유']
     
     return pd.concat([df_kr, df_global], axis=1).fillna(method='ffill').dropna()
@@ -31,7 +30,6 @@ def analyze_logic(df):
     recent = df.tail(7)
     results = {}
     
-    # 섹터 분석 (주가 모멘텀 기반)
     for sector in ["반도체", "방산"]:
         change = (recent[f"{sector}_가격"].iloc[-1] / recent[f"{sector}_가격"].iloc[0]) - 1
         if change > 0.02: results[sector] = "강력 매수"
@@ -46,7 +44,7 @@ def analyze_logic(df):
 
 # --- 웹 화면 구성 ---
 st.set_page_config(page_title="주식 섹터 분석기", layout="wide")
-st.title("📊 주간 섹터 흐름 분석 (안정화 버전)")
+st.title("📊 주간 섹터 흐름 분석 (최종 버전)")
 
 if st.button('🚀 최근 1주일 데이터 분석 실행'):
     with st.spinner('데이터를 수집하고 분석 중입니다...'):
@@ -63,4 +61,4 @@ if st.button('🚀 최근 1주일 데이터 분석 실행'):
             st.line_chart(chart_data / chart_data.iloc[0])
             
         except Exception as e:
-            st.error(f"데이터를 가져오는 중 오류가 발생했습니다: {e}")
+            st.error(f"데이터 수집 오류 발생: {e}. 잠시 후 다시 시도해 주세요.")
