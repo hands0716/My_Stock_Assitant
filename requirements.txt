@@ -5,5 +5,3 @@ yfinance
 pykrx
 scikit-learn
 plotly
-# tensorflow는 클라우드에서 매우 무거우므로 우선 빼고 테스트하거나 아래처럼 작성하세요
-tensorflow-cpu
