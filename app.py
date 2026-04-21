@@ -19,11 +19,12 @@ def get_market_data():
         "방산_가격": hanwha
     })
 
-    # 2. 해외 자산 (원유, 금) - 'Close' 컬럼 사용으로 수정
+    # 2. 해외 자산 (원유, 금)
     df_global = yf.download(["CL=F", "GC=F"], start=start_date, end=end_date)['Close']
     df_global.columns = ['금', '원유']
     
-    return pd.concat([df_kr, df_global], axis=1).fillna(method='ffill').dropna()
+    # fillna(method='ffill')를 ffill()로 변경하여 최신 Pandas 버전 대응
+    return pd.concat([df_kr, df_global], axis=1).ffill().dropna()
 
 # --- 분석 로직 ---
 def analyze_logic(df):
@@ -44,7 +45,7 @@ def analyze_logic(df):
 
 # --- 웹 화면 구성 ---
 st.set_page_config(page_title="주식 섹터 분석기", layout="wide")
-st.title("📊 주간 섹터 흐름 분석 (최종 버전)")
+st.title("📊 주간 섹터 흐름 분석 (진짜 최종 버전)")
 
 if st.button('🚀 최근 1주일 데이터 분석 실행'):
     with st.spinner('데이터를 수집하고 분석 중입니다...'):
