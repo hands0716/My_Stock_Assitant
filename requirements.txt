@@ -1,9 +1,7 @@
-setuptools
-setuptools-scm
 streamlit
 pandas
 numpy
 yfinance
-pykrx
+finance-datareader
 scikit-learn
 plotly
